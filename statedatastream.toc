@@ -1,11 +1,11 @@
 \contentsline {section}{\numberline {1}Background}{5}
-\contentsline {subsection}{\numberline {1.1}Callbacks directly}{6}
+\contentsline {subsection}{\numberline {1.1}Callbacks}{6}
 \contentsline {subsection}{\numberline {1.2}Using promises}{7}
-\contentsline {section}{\numberline {2}The StateDataStream way}{10}
+\contentsline {section}{\numberline {2}The StateDataStream way}{11}
 \contentsline {subsection}{\numberline {2.1}Specifying the stream}{11}
-\contentsline {subsubsection}{\numberline {2.1.1}Writing to the stream}{11}
+\contentsline {subsubsection}{\numberline {2.1.1}Writing to the stream}{12}
 \contentsline {subsubsection}{\numberline {2.1.2}Error handling}{12}
-\contentsline {subsection}{\numberline {2.2}Executing the stream}{12}
+\contentsline {subsection}{\numberline {2.2}Executing the stream}{13}
 \contentsline {section}{\numberline {3}Conclusion and future considerations}{13}
-\contentsline {subsection}{\numberline {3.1}Running state dependent writes in parallel}{13}
-\contentsline {subsection}{\numberline {3.2}Specifying dependencies between writes}{13}
+\contentsline {subsection}{\numberline {3.1}Specifying dependencies between writes}{14}
+\contentsline {subsection}{\numberline {3.2}Running state dependent writes in parallel}{15}
