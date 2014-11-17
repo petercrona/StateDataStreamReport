@@ -42,16 +42,16 @@
    captionpos=b
 }
 
-\title{Structuring asynchronous requests in AngularJS 1.3}
+\title{Structuring asynchronous requests in AngularJS 1.3 \\ \vspace{-2 mm} {\small Blurring the line between asynchronous and synchronous code}}
 \date{November 16, 2014}
 \author{Peter Crona\\ IceColdCode.com}
 \maketitle
 
 \begin{abstract}
-This paper presents a new way of structuring asynchronous requests in AngularJS 1.3. The approach is
+This paper presents a new tool for structuring asynchronous requests in AngularJS 1.3. The tool is
 called \emph{StateDataStream}. Today it is common that developers mix data loading and data processing in a way that reduces readability and flexibility. 
 This papers evalulates different ways of structuring asynchronous requests, starting with callbacks, then promises and finally the StateDataStream.
-Both callbacks and promises have drawbacks, some of which StateDataStream solves.
+Both callbacks and promises have drawbacks, some of which StateDataStream solves. StateDataStream achieve a clarity close to that of synchronous data loading code.
 \end{abstract}
 \clearpage
 
@@ -65,36 +65,48 @@ Both callbacks and promises have drawbacks, some of which StateDataStream solves
 \clearpage
 
 \section{Background}
-Two very common techniques for structuring asynchronous requests are using \emph{callbacks} and using \emph{promises}.
-We will define these in short. However, let us first look at the changes in requirements as more and more transition to single page web applications.
-The figures below shows how the architecture of traditional websites and single page web applications might look.
+Two very common techniques for structuring asynchronous requests are \emph{callbacks} and \emph{promises}.
+We will define these in short. Let us first look at some differences between traditional websites and \emph{single page web applications}.
+This will help us to understand why data loading has become more complex as well as more important.
+The figures below show how the architecture of traditional websites and single page web applications typically look.
 
 \begin{figure}[!htbp]
-  \includegraphics[scale=0.5]{traditional_cs_model.png}
+  \includegraphics[scale=0.4]{traditional_cs_model.png}
   \caption{
     Traditionally the web server has contained logic and then delivered a rendered page to the user.
-    The rendered page contained most, if not all, data that the user requested.
+    The rendered page contained most, if not all data that the user requested.
   }
 \end{figure}
 
 \begin{figure}[!htbp]
-  \includegraphics[scale=0.5]{new_cs_model.png}
+  \includegraphics[scale=0.4]{new_cs_model.png}
   \caption{
-    Today it is getting more and more common to develop single page web applications. 
-    Single page web application can be considered standalone applications delivered by a web server, which has the only responsibility to deliver files.
-    The web server does not contain the application logic, the logic resides in the frontend and the APIs used by the frontend.
+    Today it is common to develop single page web applications. 
+    Single page web applications can be considered being standalone applications delivered by a web server. The web server is only responsible for delivering files
+    and does not contain application logic, the logic resides in the frontend and the APIs used by the frontend.
   }
 \end{figure}
+\clearpage
+This report focuses on single page web applications. A single page web application typically contains complex data loading logic. 
+For every view data needs to be loaded, where a view corresponds to a page in a traditional website. The data is sometimes dependent on other data, for instance
+we might want to load information about a user and then load additional data based on the user's information. The data might also be independent, in which case
+we want to load it in parallel so that we get all data as quickly as possible. 
+Serverside, when using languages such as PHP or Python, data loading is handled synchronously. It might look like:
 
-A single page web application greatly increases the number of AJAX-requests required. In AngularJS a controller typically
-starts with loading data from external APIs. Traditionally data was only loaded as a response to events in the frontend.
-For example if a user clicked on `Show more posts`, an AJAX-request would have been sent to load more posts.
-With a single page app we need to do an AJAX-request just to have any posts at all. We are not given any data initially.
-This greatly increases number of AJAX-requests we need to do and thus makes it interesting to investigate new ways of structuring them.
-Now let us have a look at the two main approaches used today, namely callbacks and promises.
+\begin{lstlisting}[caption={Code showing how data loading might look like when done synchronously}, frame=single]
+user = loadUserInfo();
+repos = loadUserRepos(user.githubName);
+// We have both user and repos here
+\end{lstlisting}
+Note how clear the code is. We can read it from to to bottom and at each row we now exactly what data we have.
+
+In JavaScript data is loaded asynchronously. This makes it easier to create rapid user interfaces and to load data in parallel. However, it comes at the price of increased complexity.
+The code becomes more difficult to follow, we cannot follow the execution by reading it from top to bottom anymore.
+A solution which harness the benefits of asynchronous data loading as well as the clearness of synchronous data loading is definitely desirable.
+Let us have a look at the two main approaches used today, namely callbacks and promises.
 
 \subsection{Callbacks}
-The basic idea behind using callbacks is to run call a method with another method as argument. When the first method has finished it will call the method you provided as an argument.
+The basic idea behind using callbacks is to call a method with another method as argument. When the first method has finished it will call the method you provided in the argument.
 It is very simple to use, but it has some drawbacks when used for more advanced data loading. Consider this trivial example where we just send one request to get some data.
 
 \begin{lstlisting}[caption=Code showing how we can load data using callbacks, frame=single]
@@ -104,7 +116,7 @@ Api.getUserInfoById(43,
 
 function userInfoResponseHandler(response) { ... }
 \end{lstlisting}
-Now imagine that we have two \emph{dependent} pieces of data that we want. Consider the case where a part of the user's information is
+Now imagine that we have two \emph{dependent} pieces of data that we want. Consider the case where part of a user's information is
 his or hers Github username. After loading the user's info we want to load the user's repos on Github.
 
 \begin{lstlisting}[caption={Code, using callbacks, showing how we can load two pieces of data, where the second is dependent on the first}, frame=single]
@@ -124,25 +136,26 @@ function userInfoResponseHandler(response) {
 
 function githubResponseHandler(response) { ... }
 \end{lstlisting}
-This code is a quite unclear. Getting an overview of what data is loaded is difficult. And we will either have to mix data loading and data processing (do stuff in userInfoResponseHandler) or we
-have to send all data to the githubResponseHandler and process the data there. Both ways result in a quite unclear structure. Why should the response handler for loading Github repos be responsible for handling user data. The structure is not a result of what we want to express, it is a result of how callbacks work. Clearly it has bad readability, but it also has bad flexibility. It is difficult to load more data, for example if we would have wanted the number of contributors for the Github repos. Furthermore, it does not make it easy to load data in parallel and then run some code when all data has been loaded. Now let us have a look at how we could accomplish the same with promises.
+This code is a quite unclear. Getting an overview of what data is loaded is difficult. If we want to do more things with the user information we will either have to mix data loading and data processing (do stuff in userInfoResponseHandler) or we
+have to send all data to the githubResponseHandler and process it there. Both ways result in a quite unclear structure. It is not intuitive that the response handler for loading Github repos shall be responsible for handling user data. The structure is not a result of what we want to express, it is a result of how callbacks work. 
+Clearly it has worse readability than if we would have loaded data synchronusly.
+Furthermore, it is difficult to extend so that it loads more data, for example if we would want the number of contributors for the Github repos. Now let us have a look at how we could accomplish the same with promises.
 
 \subsection{Using promises}
-First a brief description of what promises are. Instead for directly letting you specify a callback a so called promise is returned. The promise is an object with methods where you can register callbacks.
+First a brief description of what promises are. When doing an asynchronous request, instead of you sending a callback as an argument, a so called promise is returned. The promise is an object with methods where you can register callbacks.
 In AngularJS one of the most important methods of promises is `then`.
 \[ then(successHandler, errorHandler) \]
-In addition to just being another way of specifying callbacks the successHandler or errorHandler will always be called after the data is loaded. 
-Even if you already called then or if the data was loaded before you called `then`. 
-Now that you know a little about promises, consider the case where we just want to load one piece of data, the user's info.
+Note that a promise is not just another way of specifying callbacks. For example the successHandler or errorHandler will always be called with the data as argument after it has loaded.
+Even if you already called `then` before (and got the results) or if the data was loaded before you called `then`.
+Now that you know a little about promises, consider the case where we just want to load one piece of data, information about a user.
 
-\begin{lstlisting}[caption=Code showing how we can load the user's info with promises, frame=single]
+\begin{lstlisting}[caption=Code showing how we can load a user's info with promises, frame=single]
 Api.getUserInfoById(43)
    .then(userInfoResponseHandler)
    .catch(errorHandler);
 
 function userInfoResponseHandler(response) { ... }
 \end{lstlisting}
-\clearpage
 If we have two dependent pieces of data it might look like this:
 
 \begin{lstlisting}[caption={Code showing an approach using promises where we are loading two pieces of data, where the second is dependent on the first}, frame=single]
@@ -211,7 +224,7 @@ function processData() { Do stuff with userInfo and gitRepos }
 But this approach have two drawbacks. Firstly, we use variables in an outside scope as storage, which can damage readability and makes it more difficult to reason about the code since the functions are less pure (rely on data not given in the parameters and have side effects).
 Secondly, we treat the loading of user info differently, despite that it is just loading data just as loadGithubRepos.
 Another approach without these drawbacks (I'm using Angular's \$q in this pseudo code) is:
-
+\clearpage
 \begin{lstlisting}[caption={Code where we are using promises and have separated data loading from data processing as well as made it very clear what data we are loading}, frame=single]
 $q.when({})
   .then(loadUserInfo)
@@ -241,18 +254,20 @@ function processData(state) {
 }
 \end{lstlisting}
 By just looking at the chain of promises we can directly see that we are loading user info, then github repos and finally we process the data.
-All data loading is treated the same. We can easily add more `loaders` if we need to load more data. However, this solution is not perfect.
-It is unclear what loadUserInfo does, we need to look at the actual function to know that it writes to `userInfo` in the state. Furthermore,
-it is unclear that loadGithubRepos must be after loadUserInfo. We need to look at both loadUserInfo and loadGithubRepos to know that there
+All data loading is treated the same. We can easily add more `loaders` if we need to load more data. The clarity that we have is not that far from the clarity of synchronous data loading.
+However, this solution is not perfect. It is unclear what loadUserInfo does, we need to look at the actual function to know that it writes to `userInfo` in the state. When loading data
+synchrnously we easily see which variable we assign the value to. Another issue is that it is unclear that loadGithubRepos must be after loadUserInfo. We need to look at both loadUserInfo and loadGithubRepos to know that there
 is a dependency between them. Furthermore, if we would like to load independent data this would not be done in parallel. 
-StateDataStream currently attacks the first and last problem: that it is unclear where in the state functions are writing (to which property) and that data is not loaded in parallel even if independent.
-The second problem, with unclear dependencies between elements in the promise chain, is discussed in Conclusions and future considerations (section \ref{sec:future}).
+StateDataStream currently attacks that it is unclear where in the state functions are writing (to which property) and that data is not loaded in parallel even if independent.
+The problem with the unclear dependencies in the chain of promises is discussed in section \ref{sec:future}.
+
 \clearpage
+
 \section{The StateDataStream way}
 StateDataStream is solving the problem that it is unclear where the result of a promise is written when multiple promises are chained together. 
 It also makes it easy to run independent AJAX-requests in parallel. Since the syntax is quite clear let us start with an example:
 
-\begin{lstlisting}[caption={Code showing an approach using StateDataStream where we are loading two pieces of data, where the second is dependent on the first.}, frame=single]
+\begin{lstlisting}[caption={Code showing how two pieces of data, where the second is dependent on the first, can be loaded using StateDataStream.}, frame=single]
 StateDataSteam.init({})
   .write('userInfo', Api.getUserInfoById(43))
   .write('githubRepos', function(state) {
@@ -266,7 +281,8 @@ function processData(state) {
   console.log(state.githubRepos);
 }
 \end{lstlisting}
-We have achieved a clear separation between data loading and data processing. Furthermore, it is clear where we are writing the results of promises. `userInfo` and other promises directly added to the stream (i.e. not wrapped in a function) will be sent in paralell as soon as we add them to the stream. Hence loading independent data in parallel is easy and does not damage the readability of the code.
+We have achieved a clear separation between data loading and data processing. Furthermore, it is clear where we are writing the results of promises. `userInfo` and other promises directly added to the stream (i.e. not wrapped in a function) will be sent in parallel as soon as we add them to the stream. Hence loading independent data in parallel is easy and does not damage the readability of the code.
+The clarity of the code is compareable with synchronous data loading. The code can be read from top to bottom and we can easily see to which `variables` results are assigned.
 
 Now let us have a look at the details of StateDataStream, how we specify what data to load and how to handle errors. And finally also how to execute the stream, making it possible for us to use all the data we have written into the state.
 
@@ -319,13 +335,13 @@ A stream is associated with one error handler. The error handler will immediatel
 operations will not be carried out. The error handler is called with the error and the state at the time of the error as arguments.
 \[ errorHandler(error, state) \]
 
-The error handler is associated with the stream as following:
+The error handler is associated with the stream in the following way:
 \begin{lstlisting}[caption=Attaching an error handler to the stream, frame=single]
 StateDataSteam.init({})
   .write('userInfo', val)
   .error(errorHandler);
 \end{lstlisting}
-Now let us move on to actually doing something with the stream, in contrast to just specifying it.
+Now let us move on to actually doing something with the stream, i.e. executing it.
 
 \subsection{Executing the stream}
 Once the stream is specified it can be stored in a variable or you might create a function which returns the stream parameterised by some arguments.
@@ -346,7 +362,8 @@ By just looking at the stream specification we get a good image of what will be 
 \section{Conclusion and future considerations}
 \label{sec:future}
 StateDataStream provides a new way of structuring asynchronous requests. It separates data loading from data processing and it has a very clear syntax, which makes it easy to see 
-what data is loaded and how to access it in the data processing step. Furthermore, it makes it easy to load independent data in parallel and it is easy to specify one 
+what data is loaded and how to access it in the data processing step. The data loading code's clarity is compareable with synchronous data loading.
+Furthermore, it is easy to load independent data in parallel and it is easy to specify one 
 error handler for the whole stream. It solves some of the drawbacks with callbacks and promises, which are commonly used today. However, it does not yet support making it easy to indentify dependencies between write operations nor loading dependent data in parallel
 in an easy way.
 
@@ -365,7 +382,7 @@ StateDataSteam.init({})
 \end{lstlisting}
 It is not obvious that gitHubRepos depends on the data in state.users. We need to look at the code. If the function for loading data is not specified inline (with an anonymous function) this will significantly damage readability.
 
-On possible way to make dependencies more clear is to introduce a third parameter for the write method. In that case we might get something like:
+One possible way to make dependencies more clear is to introduce a third parameter for the write method. In that case we might get something like:
 
 \begin{lstlisting}[caption=Executing the stream, frame=single]
 StateDataSteam.init({})
@@ -394,11 +411,24 @@ the best approach for this. One possible way to simplify this might be:
 \begin{lstlisting}[caption=Executing the stream, frame=single]
 StateDataSteam.init({})
   .write('users[]', Api.getUsers())
-  .writeAll('githubRepos[]', loadGithubRepos, [users])
+  .writeAll('githubRepos[]', loadGithubRepos, 'users')
   .error(errorHandler)
   .execute(initController);
 \end{lstlisting}
 Where \emph{writeAll} would cause loadGithubRepos to be called once for every element in users, and the results would be pushed into githubRepos, in parallel of course.
-Note that this would work with the method of specifying dependencies presented in section \ref{sec:spec_dependencies}.
+
+\subsection{Execute handlers with limited state}
+It might not always be desireable to have one handler for the whole state. For instance, if we are loading user info and github repos, we might want one handler to
+handle the user info and another the github repos. One idea of how this might be supported is:
+
+\begin{lstlisting}[caption=Executing the stream, frame=single]
+StateDataSteam.init({})
+  .write('users[]', Api.getUsers())
+  .write('githubRepos[]', loadGithubRepos, ['users'])
+  .execute(userHandler, ['users'])
+  .execute(githubHandler, ['users', 'githubRepos']);
+\end{lstlisting}
+
+Where userHandler would be called as userHandler(users) and githubHandler would be called as githubHandler(users, githubRepos).
 
 \end{document}

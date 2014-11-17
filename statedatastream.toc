@@ -9,3 +9,4 @@
 \contentsline {section}{\numberline {3}Conclusion and future considerations}{13}
 \contentsline {subsection}{\numberline {3.1}Specifying dependencies between writes}{14}
 \contentsline {subsection}{\numberline {3.2}Running state dependent writes in parallel}{15}
+\contentsline {subsection}{\numberline {3.3}Execute handlers with limited state}{15}

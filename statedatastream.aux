@@ -1,31 +1,34 @@
 \relax 
 \@writefile{toc}{\contentsline {section}{\numberline {1}Background}{5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  Traditionally the web server has contained logic and then delivered a rendered page to the user. The rendered page contained most, if not all, data that the user requested. }}{5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Today it is getting more and more common to develop single page web applications. Single page web application can be considered standalone applications delivered by a web server, which has the only responsibility to deliver files. The web server does not contain the application logic, the logic resides in the frontend and the APIs used by the frontend. }}{5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  Traditionally the web server has contained logic and then delivered a rendered page to the user. The rendered page contained most, if not all data that the user requested. }}{5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Today it is common to develop single page web applications. Single page web applications can be considered being standalone applications delivered by a web server. The web server is only responsible for delivering files and does not contain application logic, the logic resides in the frontend and the APIs used by the frontend. }}{5}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}Code showing how data loading might look like when done synchronously}{6}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Callbacks}{6}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}Code showing how we can load data using callbacks}{6}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}Code, using callbacks, showing how we can load two pieces of data, where the second is dependent on the first}{6}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}Code showing how we can load data using callbacks}{6}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}Code, using callbacks, showing how we can load two pieces of data, where the second is dependent on the first}{7}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Using promises}{7}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}Code showing how we can load the user's info with promises}{7}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}Code showing an approach using promises where we are loading two pieces of data, where the second is dependent on the first}{8}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}Code where we use promises and the possibility to chain promises to load two pieces of data, where the second is dependent on the first}{8}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {6}Code where we chain promises together and separate data loading from data processing. However, note that we use variables in the scope outside where we load our data.}{9}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {7}Code where we are using promises and have separated data loading from data processing as well as made it very clear what data we are loading}{9}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}Code showing how we can load a user's info with promises}{8}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}Code showing an approach using promises where we are loading two pieces of data, where the second is dependent on the first}{8}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {6}Code where we use promises and the possibility to chain promises to load two pieces of data, where the second is dependent on the first}{8}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {7}Code where we chain promises together and separate data loading from data processing. However, note that we use variables in the scope outside where we load our data.}{9}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {8}Code where we are using promises and have separated data loading from data processing as well as made it very clear what data we are loading}{10}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}The StateDataStream way}{11}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {8}Code showing an approach using StateDataStream where we are loading two pieces of data, where the second is dependent on the first.}{11}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {9}Code showing how two pieces of data, where the second is dependent on the first, can be loaded using StateDataStream.}{11}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Specifying the stream}{11}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.1}Writing to the stream}{12}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {9}Examples of listRef and objectRef keys}{12}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {10}Examples of listRef and objectRef keys}{12}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.2}Error handling}{12}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {10}Attaching an error handler to the stream}{13}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {11}Attaching an error handler to the stream}{13}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Executing the stream}{13}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {11}Executing the stream}{13}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {12}Executing the stream}{13}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Conclusion and future considerations}{13}}
 \newlabel{sec:future}{{3}{13}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Specifying dependencies between writes}{14}}
 \newlabel{sec:spec_dependencies}{{3.1}{14}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {12}Executing the stream}{14}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {13}Executing the stream}{14}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {14}Executing the stream}{14}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Running state dependent writes in parallel}{15}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {14}Executing the stream}{15}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {15}Executing the stream}{15}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {16}Executing the stream}{15}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Execute handlers with limited state}{15}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {17}Executing the stream}{15}}
