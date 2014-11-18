@@ -98,11 +98,11 @@ user = loadUserInfo();
 repos = loadUserRepos(user.githubName);
 // We have both user and repos here
 \end{lstlisting}
-Note how clear the code is. We can read it from to to bottom and at each row we now exactly what data we have.
+Note how clear the code is. We can read it from top to bottom and at each line we now exactly what data we have.
 
 In JavaScript data is loaded asynchronously. This makes it easier to create rapid user interfaces and to load data in parallel. However, it comes at the price of increased complexity.
 The code becomes more difficult to follow, we cannot follow the execution by reading it from top to bottom anymore.
-A solution which harness the benefits of asynchronous data loading as well as the clearness of synchronous data loading is definitely desirable.
+A solution which harness the benefits of asynchronous data loading as well as the readability of synchronous data loading is definitely desirable.
 Let us have a look at the two main approaches used today, namely callbacks and promises.
 
 \subsection{Callbacks}
@@ -138,7 +138,7 @@ function githubResponseHandler(response) { ... }
 \end{lstlisting}
 This code is a quite unclear. Getting an overview of what data is loaded is difficult. If we want to do more things with the user information we will either have to mix data loading and data processing (do stuff in userInfoResponseHandler) or we
 have to send all data to the githubResponseHandler and process it there. Both ways result in a quite unclear structure. It is not intuitive that the response handler for loading Github repos shall be responsible for handling user data. The structure is not a result of what we want to express, it is a result of how callbacks work. 
-Clearly it has worse readability than if we would have loaded data synchronusly.
+Clearly it has worse readability than if we would have loaded data synchronously.
 Furthermore, it is difficult to extend so that it loads more data, for example if we would want the number of contributors for the Github repos. Now let us have a look at how we could accomplish the same with promises.
 
 \subsection{Using promises}
@@ -256,7 +256,7 @@ function processData(state) {
 By just looking at the chain of promises we can directly see that we are loading user info, then github repos and finally we process the data.
 All data loading is treated the same. We can easily add more `loaders` if we need to load more data. The clarity that we have is not that far from the clarity of synchronous data loading.
 However, this solution is not perfect. It is unclear what loadUserInfo does, we need to look at the actual function to know that it writes to `userInfo` in the state. When loading data
-synchrnously we easily see which variable we assign the value to. Another issue is that it is unclear that loadGithubRepos must be after loadUserInfo. We need to look at both loadUserInfo and loadGithubRepos to know that there
+synchronously we easily see which variable we assign the value to. Another issue is that it is unclear that loadGithubRepos must be after loadUserInfo. We need to look at both loadUserInfo and loadGithubRepos to know that there
 is a dependency between them. Furthermore, if we would like to load independent data this would not be done in parallel. 
 StateDataStream currently attacks that it is unclear where in the state functions are writing (to which property) and that data is not loaded in parallel even if independent.
 The problem with the unclear dependencies in the chain of promises is discussed in section \ref{sec:future}.
@@ -418,8 +418,8 @@ StateDataSteam.init({})
 Where \emph{writeAll} would cause loadGithubRepos to be called once for every element in users, and the results would be pushed into githubRepos, in parallel of course.
 
 \subsection{Execute handlers with limited state}
-It might not always be desireable to have one handler for the whole state. For instance, if we are loading user info and github repos, we might want one handler to
-handle the user info and another the github repos. One idea of how this might be supported is:
+It might not always be desireable to have one handler for the whole state. For instance, if we are loading user info and github repos we might want one handler to
+handle the user info and another the github repos. One idea of how this might look is:
 
 \begin{lstlisting}[caption=Executing the stream, frame=single]
 StateDataSteam.init({})
